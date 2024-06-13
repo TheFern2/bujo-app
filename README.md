@@ -1,6 +1,8 @@
 # Bujo App
 
-This app was built with Tauri and the work of [bulletjournal](https://github.com/bastianallgeier/bulletjournal). I've added the ability for saving data onto the file system.
+This app was built with Tauri and the work of [bulletjournal](https://github.com/bastianallgeier/bulletjournal). I've added the ability for saving data onto the file system. This is useful if you want to sync data accross PCs.
+
+![bullet-journal](https://user-images.githubusercontent.com/24532/67368461-a7677780-f577-11e9-844e-c5e3b09fab5d.png)
 
 # Shortcuts
 
