@@ -79,15 +79,24 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [macos-11, ubuntu-latest, windows-latest]
     steps:
-      - name: Download artifacts
+      - name: Download artifacts from macOS
         uses: actions/download-artifact@v2
         with:
-          name: ${{ matrix.os }}-artifact
-          path: ./artifacts
+          name: macos-11-artifact
+          path: ./artifacts/macos
+
+      - name: Download artifacts from Ubuntu
+        uses: actions/download-artifact@v2
+        with:
+          name: ubuntu-latest-artifact
+          path: ./artifacts/ubuntu
+
+      - name: Download artifacts from Windows
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-latest-artifact
+          path: ./artifacts/windows
 
       - name: Create Release
         id: create_release
@@ -100,10 +109,26 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset
+      - name: Upload macOS Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts
-          asset_name: ${{ matrix.os }}-artifact.zip
+          asset_path: ./artifacts/macos
+          asset_name: macos-${{ github.run_number }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Ubuntu Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/ubuntu
+          asset_name: ubuntu-${{ github.run_number }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/windows
+          asset_name: windows-${{ github.run_number }}.zip
           asset_content_type: application/zip
