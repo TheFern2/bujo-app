@@ -1,7 +1,7 @@
 {
   "name": "bujo-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.12",
   "type": "module",
   "scripts": {
     "tauri": "tauri"
