@@ -14,12 +14,15 @@ jobs:
         include:
           - os: macos-11
             target: "dmg"
+            rust_target: "x86_64-apple-darwin"
             arch: "universal" # for macOS universal (Intel + Silicon)
           - os: ubuntu-latest
             target: "AppImage"
+            rust_target: "x86_64-unknown-linux-gnu"
             arch: "x86_64"
           - os: windows-latest
             target: "msi"
+            rust_target: "x86_64-pc-windows-msvc"
             arch: "x86_64"
 
     steps:
@@ -45,7 +48,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.arch }}
+          target: ${{ matrix.rust_target }}
           default: true
 
       - name: Install Tauri CLI
