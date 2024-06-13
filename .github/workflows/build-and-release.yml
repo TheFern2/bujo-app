@@ -13,15 +13,12 @@ jobs:
         os: [macos-11, ubuntu-latest, windows-latest]
         include:
           - os: macos-11
-            target: "dmg"
             rust_target: "x86_64-apple-darwin"
             arch: "universal" # for macOS universal (Intel + Silicon)
           - os: ubuntu-latest
-            target: "AppImage"
             rust_target: "x86_64-unknown-linux-gnu"
             arch: "x86_64"
           - os: windows-latest
-            target: "msi"
             rust_target: "x86_64-pc-windows-msvc"
             arch: "x86_64"
 
@@ -33,16 +30,16 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Cache node modules
+      - name: Cache Yarn
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -52,16 +49,16 @@ jobs:
           default: true
 
       - name: Install Tauri CLI
-        run: npm install -g @tauri-apps/cli
+        run: yarn global add @tauri-apps/cli
 
       - name: Build Tauri App
-        run: npm run tauri build --target ${{ matrix.target }}
+        run: yarn tauri build
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.target }}-artifact
-          path: src-tauri/target/release/bundle/${{ matrix.target }}/*.${{ matrix.target }}
+          name: ${{ runner.os }}-artifact
+          path: src-tauri/target/release/bundle/**
 
   release:
     needs: build
@@ -70,7 +67,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: ${{ matrix.target }}-artifact
+          name: ${{ runner.os }}-artifact
           path: ./artifacts
 
       - name: Create Release
@@ -89,5 +86,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts
-          asset_name: ${{ matrix.target }}-artifact.${{ matrix.target }}
-          asset_content_type: application/octet-stream
+          asset_name: ${{ runner.os }}-artifact.zip
+          asset_content_type: application/zip
