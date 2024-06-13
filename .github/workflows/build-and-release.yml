@@ -72,11 +72,21 @@ jobs:
 
       - name: Zip artifacts (macOS and Linux)
         if: matrix.os != 'windows-latest'
-        run: zip -r artifacts-${{ matrix.os }}.zip src-tauri/target/release/bundle/**
+        run: zip -r artifacts-${{ matrix.os }}.zip src-tauri/target/release/bundle/
 
       - name: Zip artifacts (Windows)
         if: matrix.os == 'windows-latest'
         run: Compress-Archive -Path src-tauri/target/release/bundle/* -DestinationPath artifacts-${{ matrix.os }}.zip
+
+      - name: List files (macOS and Linux)
+        if: matrix.os != 'windows-latest'
+        run: ls -la src-tauri/target/release/bundle/
+        shell: bash
+
+      - name: List files (Windows)
+        if: matrix.os == 'windows-latest'
+        run: Get-ChildItem -Path src-tauri/target/release/bundle/
+        shell: pwsh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -105,6 +115,16 @@ jobs:
         with:
           name: windows-latest-artifact
           path: ./artifacts-windows-latest.zip
+
+      - name: List downloaded files (macOS and Linux)
+        if: runner.os != 'Windows'
+        run: ls -la ./artifacts-*
+        shell: bash
+
+      - name: List downloaded files (Windows)
+        if: runner.os == 'Windows'
+        run: Get-ChildItem -Path ./artifacts-*
+        shell: pwsh
 
       - name: Create Release
         id: create_release
