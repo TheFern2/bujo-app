@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Mark this release as a pre-release'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download artifacts from macOS
+        uses: actions/download-artifact@v2
+        with:
+          name: macos-11-artifact
+          path: ./artifacts-macos-11.zip
+
+      - name: Download artifacts from Ubuntu
+        uses: actions/download-artifact@v2
+        with:
+          name: ubuntu-latest-artifact
+          path: ./artifacts-ubuntu-latest.zip
+
+      - name: Download artifacts from Windows
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-latest-artifact
+          path: ./artifacts-windows-latest.zip
+
+      - name: List downloaded files (macOS and Linux)
+        if: runner.os != 'Windows'
+        run: ls -la ./artifacts-*
+        shell: bash
+
+      - name: List downloaded files (Windows)
+        if: runner.os == 'Windows'
+        run: Get-ChildItem -Path ./artifacts-*
+        shell: pwsh
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+
+      - name: Upload macOS Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts-macos-11.zip
+          asset_name: macos-${{ github.run_number }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Ubuntu Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts-ubuntu-latest.zip
+          asset_name: ubuntu-${{ github.run_number }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts-windows-latest.zip
+          asset_name: windows-${{ github.run_number }}.zip
+          asset_content_type: application/zip
