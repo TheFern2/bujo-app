@@ -70,8 +70,13 @@ jobs:
       - name: Build Tauri App
         run: yarn tauri build
 
-      - name: Zip artifacts
+      - name: Zip artifacts (macOS and Linux)
+        if: matrix.os != 'windows-latest'
         run: zip -r artifacts-${{ matrix.os }}.zip src-tauri/target/release/bundle/**
+
+      - name: Zip artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        run: Compress-Archive -Path src-tauri/target/release/bundle/* -DestinationPath artifacts-${{ matrix.os }}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -87,19 +92,19 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: macos-11-artifact
-          path: ./artifacts-macos.zip
+          path: ./artifacts-macos-11.zip
 
       - name: Download artifacts from Ubuntu
         uses: actions/download-artifact@v2
         with:
           name: ubuntu-latest-artifact
-          path: ./artifacts-ubuntu.zip
+          path: ./artifacts-ubuntu-latest.zip
 
       - name: Download artifacts from Windows
         uses: actions/download-artifact@v2
         with:
           name: windows-latest-artifact
-          path: ./artifacts-windows.zip
+          path: ./artifacts-windows-latest.zip
 
       - name: Create Release
         id: create_release
@@ -116,7 +121,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts-macos.zip
+          asset_path: ./artifacts-macos-11.zip
           asset_name: macos-${{ github.run_number }}.zip
           asset_content_type: application/zip
 
@@ -124,7 +129,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts-ubuntu.zip
+          asset_path: ./artifacts-ubuntu-latest.zip
           asset_name: ubuntu-${{ github.run_number }}.zip
           asset_content_type: application/zip
 
@@ -132,6 +137,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts-windows.zip
+          asset_path: ./artifacts-windows-latest.zip
           asset_name: windows-${{ github.run_number }}.zip
           asset_content_type: application/zip
