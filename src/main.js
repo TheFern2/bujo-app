@@ -17,10 +17,6 @@ document.addEventListener("keydown", async (e) => {
     console.log("metakey and l");
     await loadDataFromFile('data.json');
     updateHTMLFromLocalStorage();
-  } else if (e.metaKey === true && e.key === "t") {
-    e.preventDefault();
-    console.log("metakey and t");
-    invoke('my_custom_command')
   } else if (e.metaKey === true && e.key === ",") {
     e.preventDefault();
     console.log("metakey and t");
